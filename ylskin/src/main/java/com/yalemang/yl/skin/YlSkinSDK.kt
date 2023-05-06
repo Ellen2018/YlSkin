@@ -33,6 +33,10 @@ object YlSkinSDK {
         }
     }
 
+    fun getOriginalResources():Resources{
+        return originalResources
+    }
+
     fun isUseSkin(): Boolean {
         return this::skinResources.isInitialized
     }
