@@ -69,7 +69,7 @@ object YlSkinSDK {
                 for(activity in activityLifeManager.activeActivity){
                     if(activity is SkinActivity){
                         if(activity.isUpdateSkin()) {
-                            activity.updateSkin()
+                            activity.updateSkin(skinResources)
                         }
                     }else {
                         activity.recreate()
@@ -84,7 +84,7 @@ object YlSkinSDK {
                             if (activity.updateSkinMethod() == ActivitySkinUpdateMethod.COLD) {
                                 activity.recreate()
                             } else {
-                                activity.updateSkin()
+                                activity.updateSkin(skinResources)
                             }
                         }
                     }else {

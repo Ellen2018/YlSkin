@@ -9,7 +9,7 @@ open class SkinActivity : AppCompatActivity() {
         return YlSkinSDK.getResources()
     }
 
-    open fun updateSkin(){
+    open fun updateSkin(resources: Resources){
 
     }
 

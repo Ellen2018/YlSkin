@@ -1,6 +1,7 @@
 package com.yalemang.ylskin
 
 import android.app.Application
+import com.yalemang.yl.skin.SkinUpdateMethod
 import com.yalemang.yl.skin.YlSkinSDK
 import java.io.File
 
@@ -24,6 +25,7 @@ class App:Application() {
         copySkinApkToSD(FILE_SKIN)
         YlSkinSDK
             .init(this)
+            .setUpdateMethod(SkinUpdateMethod.COLD)
             .loadResources(file.absolutePath)
     }
 
