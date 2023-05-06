@@ -10,6 +10,7 @@ class App:Application() {
         //初始化SDK
         YlSkinSDK
             .init(this)
+            .loadResources("")
     }
 
 }

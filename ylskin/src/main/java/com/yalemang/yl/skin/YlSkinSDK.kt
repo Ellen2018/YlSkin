@@ -3,6 +3,7 @@ package com.yalemang.yl.skin
 import android.app.Application
 import android.content.res.AssetManager
 import android.content.res.Resources
+import java.io.File
 import java.lang.ref.WeakReference
 
 object YlSkinSDK {
@@ -44,18 +45,7 @@ object YlSkinSDK {
      * 加载皮肤并且应用
      */
     fun loadResourceAndApply(apkPath: String) {
-        val appResources = getApp()?.resources
-        val assetManager = AssetManager::class.java.newInstance()
-        val addAssetPath = assetManager.javaClass.getMethod(
-            "addAssetPath",
-            String::class.java
-        )
-        addAssetPath.invoke(assetManager, apkPath)
-        skinResources = Resources(
-            assetManager,
-            appResources?.displayMetrics, appResources?.configuration
-        )
-
+        if(!loadResources(apkPath)){ return }
         //更新皮肤
         when(skinUpdateMethod){
             SkinUpdateMethod.COLD->{
@@ -99,6 +89,28 @@ object YlSkinSDK {
                 }
             }
         }
+    }
+
+    /**
+     * 一般在Application里进行调用
+     */
+    fun loadResources(apkPath: String):Boolean{
+        if(!File(apkPath).exists()){
+            return false
+        }
+        //需要判断皮肤包是否存在
+        val appResources = getApp()?.resources
+        val assetManager = AssetManager::class.java.newInstance()
+        val addAssetPath = assetManager.javaClass.getMethod(
+            "addAssetPath",
+            String::class.java
+        )
+        addAssetPath.invoke(assetManager, apkPath)
+        skinResources = Resources(
+            assetManager,
+            appResources?.displayMetrics, appResources?.configuration
+        )
+        return true
     }
 
 
