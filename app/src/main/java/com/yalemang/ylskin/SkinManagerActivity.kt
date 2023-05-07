@@ -30,5 +30,4 @@ class SkinManagerActivity:AppCompatActivity(),SkinChangeListener{
     override fun change(resources: Resources) {
        Toast.makeText(this,"皮肤切换成功",Toast.LENGTH_SHORT).show()
     }
-
 }
