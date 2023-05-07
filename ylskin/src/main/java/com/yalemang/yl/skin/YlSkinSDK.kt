@@ -3,6 +3,7 @@ package com.yalemang.yl.skin
 import android.app.Application
 import android.content.res.AssetManager
 import android.content.res.Resources
+import android.util.Log
 import java.io.File
 import java.lang.ref.WeakReference
 
@@ -14,13 +15,9 @@ object YlSkinSDK {
     //皮肤Resources
     private lateinit var skinResources: Resources
     private lateinit var appWr: WeakReference<Application>
-    private var skinUpdateMethod: SkinUpdateMethod = SkinUpdateMethod.COLD
     private var activityLifeManager: ActivityLifeManager = ActivityLifeManager()
-
-    fun setUpdateMethod(skinUpdateMethod: SkinUpdateMethod):YlSkinSDK{
-        this.skinUpdateMethod = skinUpdateMethod
-        return this
-    }
+    private var skinChangeListeners = ArrayList<SkinChangeListener>()
+    private const val FIELD_APP_RESOURCES = "mResources"
 
     /**
      * 获取当前的Resources
@@ -33,7 +30,7 @@ object YlSkinSDK {
         }
     }
 
-    fun getOriginalResources():Resources{
+    fun getOriginalResources(): Resources {
         return originalResources
     }
 
@@ -49,57 +46,31 @@ object YlSkinSDK {
      * 加载皮肤并且应用
      */
     fun loadResourceAndApply(apkPath: String) {
-        if(!loadResources(apkPath)){ return }
+        if (!loadResources(apkPath)) {
+            return
+        }
         //更新皮肤
-        when(skinUpdateMethod){
-            SkinUpdateMethod.COLD->{
-                //冷更新，将所有Activity进行ReCreate
-                for(activity in activityLifeManager.activeActivity){
-                    if(activity is SkinActivity){
-                        if(activity.isUpdateSkin()){
-                            activity.recreate()
-                        }
-                    }else {
-                        activity.recreate()
-                    }
+        for (activity in activityLifeManager.activeActivity) {
+            if (activity is SkinActivity) {
+                if (activity.isUpdateSkin()) {
+                    activity.updateSkin(skinResources)
+                }
+            }else{
+                if(activity is YlSkinSupport){
+                    activity.updateSkin(skinResources)
                 }
             }
-            SkinUpdateMethod.HOT->{
-                //以回调方式通知所有存活的Activity
-                for(activity in activityLifeManager.activeActivity){
-                    if(activity is SkinActivity){
-                        if(activity.isUpdateSkin()) {
-                            activity.updateSkin(skinResources)
-                        }
-                    }else {
-                        activity.recreate()
-                    }
-                }
-            }
-            SkinUpdateMethod.AUTO->{
-                //自定义方式,按照存活的Activity的updateSkinMethod方法返回的方式进行更换
-                for(activity in activityLifeManager.activeActivity){
-                    if(activity is SkinActivity){
-                        if(activity.isUpdateSkin()) {
-                            if (activity.updateSkinMethod() == ActivitySkinUpdateMethod.COLD) {
-                                activity.recreate()
-                            } else {
-                                activity.updateSkin(skinResources)
-                            }
-                        }
-                    }else {
-                        activity.recreate()
-                    }
-                }
-            }
+        }
+        for(s in skinChangeListeners){
+            s.change(skinResources)
         }
     }
 
     /**
      * 一般在Application里进行调用
      */
-    fun loadResources(apkPath: String):Boolean{
-        if(!File(apkPath).exists()){
+    fun loadResources(apkPath: String): Boolean {
+        if (!File(apkPath).exists()) {
             return false
         }
         //需要判断皮肤包是否存在
@@ -114,9 +85,25 @@ object YlSkinSDK {
             assetManager,
             appResources?.displayMetrics, appResources?.configuration
         )
+        replaceAppResources()
         return true
     }
 
+    private fun replaceAppResources() {
+        val app = getApp() as Application
+        val context = app.baseContext
+        val mResourcesField = context.javaClass.getDeclaredField(FIELD_APP_RESOURCES)
+        mResourcesField.isAccessible = true
+        mResourcesField.set(context, skinResources)
+    }
+
+    fun registerSkinChangeListener(skinChangeListener: SkinChangeListener) {
+        skinChangeListeners.add(skinChangeListener)
+    }
+
+    fun unRegisterSkinChangeListener(skinChangeListener: SkinChangeListener) {
+        skinChangeListeners.remove(skinChangeListener)
+    }
 
     /**
      * 初始化
@@ -124,6 +111,7 @@ object YlSkinSDK {
     fun init(application: Application): YlSkinSDK {
         appWr = WeakReference(application)
         originalResources = application.resources
+        skinResources = originalResources
         //注册Activity监听
         application.registerActivityLifecycleCallbacks(activityLifeManager)
         return this

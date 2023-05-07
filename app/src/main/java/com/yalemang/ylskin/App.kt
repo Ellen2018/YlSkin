@@ -1,17 +1,16 @@
 package com.yalemang.ylskin
 
 import android.app.Application
-import com.yalemang.yl.skin.SkinUpdateMethod
 import com.yalemang.yl.skin.YlSkinSDK
 import java.io.File
 
-class App:Application() {
+class App : Application() {
 
-    companion object{
+    companion object {
         const val FILE_NAME = "app-debug.apk"
         const val FILE_SKIN = "file_skin.apk"
-        lateinit var file:File
-        lateinit var file2:File
+        lateinit var file: File
+        lateinit var file2: File
     }
 
     override fun onCreate() {
@@ -25,13 +24,12 @@ class App:Application() {
         copySkinApkToSD(FILE_SKIN)
         YlSkinSDK
             .init(this)
-            .setUpdateMethod(SkinUpdateMethod.COLD)
             .loadResources(file.absolutePath)
     }
 
-    private fun copySkinApkToSD(assetName:String){
+    private fun copySkinApkToSD(assetName: String) {
         //不存在，先从服务器进行下载，这里模拟只从assets目录复制到本地目录
-        FileUtils.copyFileFromAssets(this, assetName,cacheDir.absolutePath, assetName)
+        FileUtils.copyFileFromAssets(this, assetName, cacheDir.absolutePath, assetName)
     }
 
 }

@@ -1,14 +1,10 @@
 package com.yalemang.ylskin
 
 import android.annotation.SuppressLint
-import android.content.res.Resources
-import android.graphics.Color
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
-import com.yalemang.yl.skin.ActivitySkinUpdateMethod
 import com.yalemang.yl.skin.SkinActivity
-import com.yalemang.yl.skin.YlSkinSDK
-import java.io.File
 
 class MainActivity : SkinActivity() {
 
@@ -21,7 +17,7 @@ class MainActivity : SkinActivity() {
 
         tv.setOnClickListener {
             //切换皮肤
-            YlSkinSDK.loadResourceAndApply(File(cacheDir,App.FILE_SKIN).absolutePath)
+            startActivity(Intent(this,OldActivity::class.java))
         }
     }
 }

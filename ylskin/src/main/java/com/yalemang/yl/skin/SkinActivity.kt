@@ -9,15 +9,12 @@ open class SkinActivity : AppCompatActivity() {
         return YlSkinSDK.getResources()
     }
 
-    open fun updateSkin(resources: Resources){
-
+    open fun updateSkin(resources: Resources) {
+        //默认是重新构建Activity
+        recreate()
     }
 
-    open fun updateSkinMethod():ActivitySkinUpdateMethod{
-        return ActivitySkinUpdateMethod.COLD
-    }
-
-    open fun isUpdateSkin():Boolean{
+    open fun isUpdateSkin(): Boolean {
         return true
     }
 }
